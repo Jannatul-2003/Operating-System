@@ -37,9 +37,11 @@ extern "C" {
 #include<stdint.h>
 
 #define SET_ACT_DEV(QUEUE,DEV)  (QUEUE |= DEV)
+void display_group_info(void);
 void __sys_init(void); 
 void SoftReset(void);
 uint32_t verify_connectivity(void);
+
 
 #ifdef __cplusplus
 }

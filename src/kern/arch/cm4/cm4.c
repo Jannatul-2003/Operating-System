@@ -38,89 +38,116 @@
 * redefining the function to change its characteristics whenever necessary.
 **************************************************************************************/
 
+volatile uint32_t ms_tick = 0;
+volatile uint32_t sec_tick = 0;
+volatile uint32_t min_tick = 0;
+volatile uint32_t hour_tick = 0;
+
+void __enable_fpu(void) {
+    SCB->CPACR |= (0xF << 20); // enable CP10 and CP11 full access
+    __DSB();
+    __ISB();
+}
+
 void __SysTick_init(uint32_t reload)
 {
-    
+    SYSTICK->LOAD = (reload & SysTick_LOAD_RELOAD_Msk);
+    SYSTICK->VAL = 0;
+    SYSTICK->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
 }
+
 void SysTickIntDisable(void)
 {
-
+    SYSTICK->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 }
 
 void SysTickIntEnable(void)
 {
-
+    SYSTICK->CTRL |= SysTick_CTRL_TICKINT_Msk;
 }
-/************************************************************************************
-* __sysTick_enable(void) 
-* The function enables the SysTick clock if already not enabled. 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
+
 void __SysTick_enable(void)
 {
-
+    SYSTICK->CTRL |= SysTick_CTRL_ENABLE_Msk;
 }
-void __sysTick_disable(void)
+
+void __SysTick_disable(void)
 {
-
+    SYSTICK->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
 }
+
 uint32_t __getSysTickCount(void)
 {
-\
+    return ms_tick;
 }
-/************************************************************************************
-* __updateSysTick(uint32_t count) 
-* Function reinitialize the SysTick clock. The function with a weak attribute enables 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
 
 void __updateSysTick(uint32_t count)
 {
- 
+    ms_tick = count;
+    sec_tick = count / 1000;
+    min_tick = sec_tick / 60;
+    hour_tick = min_tick / 60;
 }
-
-/************************************************************************************
-* __getTime(void) 
-* Function return the SysTick elapsed time from the begining or reinitialing. The function with a weak attribute enables 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
 
 uint32_t __getTime(void)
 {
- 
-uint32_t __get__Second(void){
- 
-}
-uint32_t __get__Minute(void){
- 
-}
-uint32_t __get__Hour(void){
-  
-}
-void SysTick_Handler(void)
-{
-  
+    return ms_tick;
 }
 
-void __enable_fpu()
+uint32_t __get__Second(void)
 {
-    SCB->CPACR |= ((0xFUL<<20));
+    return sec_tick;
+}
+
+uint32_t __get__Minute(void)
+{
+    return min_tick;
+}
+
+uint32_t __get__Hour(void)
+{
+    return hour_tick;
+}
+
+// SysTick interrupt handler
+void SysTick_Handler(void)
+{
+    ms_tick++;
+    if (ms_tick % 1000 == 0) {
+        sec_tick++;
+        if (sec_tick % 60 == 0) {
+            min_tick++;
+            if (min_tick % 60 == 0) {
+                hour_tick++;
+            }
+        }
+    }
 }
 
 uint8_t ms_delay(uint32_t delay)
 {
-
+    uint32_t start = ms_tick;
+    while ((ms_tick - start) < delay) {
+        // Optionally, enter sleep mode here
+    }
+    return 0;
 }
 
 uint32_t getmsTick(void)
 {
- 
+    return ms_tick;
 }
 
 uint32_t wait_until(uint32_t delay)
 {
- 
+    uint32_t start = ms_tick;
+    while ((ms_tick - start) < delay) {
+        // Optionally, enter sleep mode here
+    }
+    return ms_tick;
 }
+
+
 
 void SYS_SLEEP_WFI(void)
 {

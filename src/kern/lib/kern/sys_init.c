@@ -45,6 +45,7 @@
 #define DEBUG 1
 #endif
 extern UART_HandleTypeDef huart6;
+void display_group_info(void);  // <-- add this
 
 void __sys_init(void)
 {
@@ -90,6 +91,8 @@ void SYS_ROUTINE(void)
 */
 void display_group_info(void)
 {
-	kprintf("Empty Group!! -- Update Now\n")
+	kprintf("Name:Jannatul Ferdousi, Reg. No.:2021011184, Class Roll:SK-08\n");
+	kprintf("Name:Faria Yasmin, Reg. No.:2021611197, Class Roll:SK-21\n");
+	kprintf("Name:Yuki Bhuiyan, Reg. No.:2021816226, Class Roll:RH-64\n");
 
 }
