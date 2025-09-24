@@ -128,7 +128,7 @@ uint8_t ms_delay(uint32_t delay)
 {
     uint32_t start = ms_tick;
     while ((ms_tick - start) < delay) {
-        // Optionally, enter sleep mode here
+        __NOP();
     }
     return 0;
 }
@@ -142,7 +142,6 @@ uint32_t wait_until(uint32_t delay)
 {
     uint32_t start = ms_tick;
     while ((ms_tick - start) < delay) {
-        // Optionally, enter sleep mode here
     }
     return ms_tick;
 }

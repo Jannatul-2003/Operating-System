@@ -44,6 +44,7 @@ void kmain(void)
     __sys_init();
     while (1)
     {
-      
+      ms_delay(30000); // wait 1 minute (60,000 ms)
+      kprintf("Elapsed: %d sec\n", __get__Second());
     }
 }

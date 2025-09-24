@@ -219,7 +219,12 @@ clean:
 # To Students -- Modify to match with the appropriate driver file.
 #load:
 #	openocd -f /usr/share/openocd/scripts/board/stm32f4discovery.cfg -f /usr/share/openocd/scripts/interface/stlink.cfg -c "program target/duos verify reset exit"
+# load:
+# 	openocd -f /usr/share/openocd/scripts/board/stm32f4discovery.cfg -f /usr/share/openocd/scripts/interface/stlink.cfg -c "program target/duos verify reset"
 load:
-	openocd -f /usr/share/openocd/scripts/board/stm32f4discovery.cfg -f /usr/share/openocd/scripts/interface/stlink.cfg -c "program target/duos verify reset"
+	openocd -f /usr/share/openocd/scripts/interface/stlink.cfg \
+	        -f /usr/share/openocd/scripts/target/stm32f4x.cfg \
+	        -c "reset_config none" \
+	        -c "program build/final.elf verify reset"
 
 
