@@ -27,7 +27,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-
 #include <sys_init.h>
 #include <cm4.h>
 #include <kmain.h>
@@ -36,15 +35,20 @@
 #include <kstdio.h>
 #include <sys_rtc.h>
 #include <kstring.h>
-#ifndef DEBUG
-#define DEBUG 1
-#endif
+#include <unistd.h> // user wrappers (write, getpid, yield, reboot)
+
 void kmain(void)
 {
-    __sys_init();
-    while (1)
-    {
-      ms_delay(30000); // wait 1 minute (60,000 ms)
-      kprintf("Elapsed: %d sec\n", __get__Second());
-    }
+  __sys_init();
+  kprintf("DUOS Kernel started!\n");
+
+  while (1)
+  {
+    write(1, "Hello from user-space!\n", 23);
+    int pid = getpid();
+    kprintf("[Kernel] PID = %d, Time = %lu ms\n", pid, getSysTickTime());
+
+    ms_delay(2000); // delay 2 seconds
+    yield();        // trigger context switch
+  }
 }

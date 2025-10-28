@@ -1,4 +1,4 @@
-# Makefile for DUOS: Last Updated on October 28, 2022
+# ...existing code...
 MCU=stm32f446re
 CC=arm-none-eabi-gcc
 MACH=cortex-m4
@@ -66,6 +66,9 @@ times.o \
 kunistd.o \
 ktimes.o \
 syscall.o \
+syscalls.o \
+syscall_kern.o \
+svc_handler.o \
 serial_lin.o \
 UsartRingBuffer.o \
 timer.o \
@@ -82,139 +85,164 @@ final.elf
 
 
 kstdio.o: $(OS_PATH)/lib/kstdio.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
-	
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    
 kstring.o: $(OS_PATH)/lib/kstring.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 kmain.o: $(OS_PATH)/kmain/kmain.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
-	
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    
 sys_init.o: $(OS_PATH)/lib/kern/sys_init.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 sys_clock.o: $(OS_SYS_LIB)/sys_clock.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 mcu_info.o: $(OS_SYS_LIB)/mcu_info.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 sys_gpio.o: $(OS_SYS_LIB)/sys_gpio.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
-	
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    
 sys_usart.o: $(OS_SYS_LIB)/sys_usart.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
-	
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    
 sys_timer.o: $(OS_SYS_LIB)/sys_timer.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 kmath.o: $(OS_PATH)/lib/kmath.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
-	
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    
 stm32_startup.o: $(OS_SYS_LIB)/stm32_startup.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 cm4.o: $(OS_PATH)/arch/cm4/cm4.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 kfloat.o: $(OS_PATH)/lib/kfloat.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 unistd.o: $(USERLAND)/utils/unistd.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 kunistd.o: $(OS_PATH)/lib/kunistd.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 ktimes.o: $(OS_PATH)/lib/ktimes.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
-	
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    
 times.o: $(USERLAND)/utils/times.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
-	
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    
 syscall.o: $(OS_PATH)/syscall/syscall.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+
+# Added syscall-related object rules
+syscalls.o: $(OS_PATH)/syscall/syscalls.c
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+
+syscall_kern.o: $(OS_PATH)/syscall/syscall_kern.c
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+
+# Assembly .S -> object (preferred for SVC entry if provided)
+$(OBJECT)/svc_handler.o: $(OS_PATH)/syscall/svc_handler.S
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $@
 
 serial_lin.o: $(OS_PATH)/lib/kern/serial_lin.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 UsartRingBuffer.o: $(OS_PATH)/lib/UsartRingBuffer.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 debug.o:$(OS_PATH)/lib/sotom/debug.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 timer.o: $(OS_PATH)/lib/sotom/timer.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 sys_spi.o: $(OS_SYS_LIB)/sys_spi.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 sys_err.o: $(OS_SYS_LIB)/sys_err.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 sys_rtc.o: $(OS_SYS_LIB)/sys_rtc.c
-	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 test_can.o: $(USERLAND)/utils/test_can.c
+    $(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+
+pendsv_handler.o: $(OS_PATH)/arch/$(MCU)/pendsv_handler.s
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
-duos: $(OBJECT)/kmath.o \
-	$(OBJECT)/kfloat.o  \
-	$(OBJECT)/cm4.o \
-	$(OBJECT)/mcu_info.o \
-	$(OBJECT)/kstring.o \
-	$(OBJECT)/kmain.o \
-	$(OBJECT)/stm32_startup.o \
-	$(OBJECT)/sys_clock.o \
-	$(OBJECT)/sys_usart.o \
-	$(OBJECT)/sys_gpio.o \
-	$(OBJECT)/kstdio.o \
-	$(OBJECT)/sys_init.o \
-	$(OBJECT)/unistd.o \
-	$(OBJECT)/times.o \
-	$(OBJECT)/serial_lin.o \
-	$(OBJECT)/UsartRingBuffer.o \
-	$(OBJECT)/debug.o \
-	$(OBJECT)/timer.o \
-	$(OBJECT)/sys_err.o \
-	$(OBJECT)/sys_rtc.o  
-	
+scheduler.o: $(OS_PATH)/kern/scheduler.c
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
-	$(CC) $(LDFLAGS) $^ -o $(TARGET)/$@
+
+duos: $(OBJECT)/kmath.o \
+    $(OBJECT)/kfloat.o  \
+    $(OBJECT)/cm4.o \
+    $(OBJECT)/mcu_info.o \
+    $(OBJECT)/kstring.o \
+    $(OBJECT)/kmain.o \
+    $(OBJECT)/stm32_startup.o \
+    $(OBJECT)/sys_clock.o \
+    $(OBJECT)/sys_usart.o \
+    $(OBJECT)/sys_gpio.o \
+    $(OBJECT)/kstdio.o \
+    $(OBJECT)/sys_init.o \
+    $(OBJECT)/unistd.o \
+    $(OBJECT)/times.o \
+    $(OBJECT)/serial_lin.o \
+    $(OBJECT)/UsartRingBuffer.o \
+    $(OBJECT)/debug.o \
+    $(OBJECT)/timer.o \
+    $(OBJECT)/sys_err.o \
+    $(OBJECT)/sys_rtc.o  \
+    $(OBJECT)/syscall.o \
+    $(OBJECT)/syscalls.o \
+    $(OBJECT)/syscall_kern.o \
+    $(OBJECT)/svc_handler.o
+
+    $(CC) $(LDFLAGS) $^ -o $(TARGET)/$@
 
 #	$(OBJECT)/m5stack.o \
 $	$(OBJECT)/m5stack_error.o  
 
 final.elf: $(OBJECT)/kmath.o \
-	$(OBJECT)/kfloat.o  \
-	$(OBJECT)/cm4.o \
-	$(OBJECT)/mcu_info.o \
-	$(OBJECT)/kstring.o \
-	$(OBJECT)/kmain.o \
-	$(OBJECT)/stm32_startup.o \
-	$(OBJECT)/sys_clock.o \
-	$(OBJECT)/sys_usart.o \
-	$(OBJECT)/sys_gpio.o \
-	$(OBJECT)/kstdio.o \
-	$(OBJECT)/sys_init.o \
-	$(OBJECT)/unistd.o \
-	$(OBJECT)/times.o \
-	$(OBJECT)/serial_lin.o \
-	$(OBJECT)/UsartRingBuffer.o \
-	$(OBJECT)/debug.o \
-	$(OBJECT)/timer.o \
-	$(OBJECT)/sys_err.o \
-	$(OBJECT)/sys_rtc.o 
-	
-	
-	$(CC) $(LDFLAGS) $^ -o build/$@
-	
+    $(OBJECT)/kfloat.o  \
+    $(OBJECT)/cm4.o \
+    $(OBJECT)/mcu_info.o \
+    $(OBJECT)/kstring.o \
+    $(OBJECT)/kmain.o \
+    $(OBJECT)/stm32_startup.o \
+    $(OBJECT)/sys_clock.o \
+    $(OBJECT)/sys_usart.o \
+    $(OBJECT)/sys_gpio.o \
+    $(OBJECT)/kstdio.o \
+    $(OBJECT)/sys_init.o \
+    $(OBJECT)/unistd.o \
+    $(OBJECT)/times.o \
+    $(OBJECT)/serial_lin.o \
+    $(OBJECT)/UsartRingBuffer.o \
+    $(OBJECT)/debug.o \
+    $(OBJECT)/timer.o \
+    $(OBJECT)/sys_err.o \
+    $(OBJECT)/sys_rtc.o \
+    $(OBJECT)/syscall.o \
+    $(OBJECT)/syscalls.o \
+    $(OBJECT)/syscall_kern.o \
+    $(OBJECT)/svc_handler.o
+    
+    
+    $(CC) $(LDFLAGS) $^ -o build/$@
+    
 # $(OBJECT)/m5stack.o 
 # $(OBJECT)/m5stack_error.o 
 
 clean:
-	rm -rf $(OBJECT)/*.o $(MAPDIR)/*.map $(TARGET)/* *.o *.elf build/*
+    rm -rf $(OBJECT)/*.o $(MAPDIR)/*.map $(TARGET)/* *.o *.elf build/*
 
 # To Students -- Modify to match with the appropriate driver file.
 #load:
@@ -222,9 +250,8 @@ clean:
 # load:
 # 	openocd -f /usr/share/openocd/scripts/board/stm32f4discovery.cfg -f /usr/share/openocd/scripts/interface/stlink.cfg -c "program target/duos verify reset"
 load:
-	openocd -f /usr/share/openocd/scripts/interface/stlink.cfg \
-	        -f /usr/share/openocd/scripts/target/stm32f4x.cfg \
-	        -c "reset_config none" \
-	        -c "program build/final.elf verify reset"
-
-
+    openocd -f /usr/share/openocd/scripts/interface/stlink.cfg \
+            -f /usr/share/openocd/scripts/target/stm32f4x.cfg \
+            -c "reset_config none" \
+            -c "program build/final.elf verify reset"
+# ...existing code...

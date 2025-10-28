@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 
+ * Copyright (c) 2022
  * Computer Science and Engineering, University of Dhaka
  * Credit: CSE Batch 25 (starter) and Prof. Mosaddek Tushar
  *
@@ -27,10 +27,39 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
- 
-#ifndef _SYSCALL_H
-#define _SYSCALL_H
-#include <stdint.h>
-void syscall(uint16_t);
-#endif
+#ifndef _SYSCALL_H_
+#define _SYSCALL_H_
 
+#include <stdint.h>
+#include <stddef.h>
+#include <sys/types.h>
+#include "kern/syscall_def.h"
+
+/*
+ * ======================================================
+ * DUOS User-Side System Call Interface (sotom layer)
+ * ------------------------------------------------------
+ * Provides wrappers for all supported syscalls.
+ * These wrappers internally execute the SVC instruction
+ * with the syscall number (svc_id) stored in R0.
+ * ======================================================
+ */
+
+/* ===== User-side syscall wrappers ===== */
+/* ===== User-side syscall wrappers ===== */
+ssize_t write(int fd, const void *buf, size_t size);
+ssize_t read(int fd, void *buf, size_t size);
+void exit(int status);
+int getpid(void);
+uint32_t getSysTickTime(void);
+void reboot(void);
+void yield(void);
+
+/* ===== Generic syscall() helper =====
+ * For dynamic invocation if needed.
+ * Example:
+ *   syscall(SYS_write, 1, "Hello", 5);
+ */
+long syscall(uint16_t syscall_id, ...);
+
+#endif /* _SYSCALL_H_ */
