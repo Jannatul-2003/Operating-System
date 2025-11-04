@@ -32,26 +32,20 @@
 #include <sys_clock.h>
 #include <syscall.h>
 
-/************************************************************************************
-* __SysTick_init(uint32_t reload) 
-* Function initialize the SysTick clock. The function with a weak attribute enables 
-* redefining the function to change its characteristics whenever necessary.
-**************************************************************************************/
+
 
 volatile uint32_t ms_tick = 0;
 volatile uint32_t sec_tick = 0;
 volatile uint32_t min_tick = 0;
 volatile uint32_t hour_tick = 0;
 
-void __enable_fpu(void) {
-    SCB->CPACR |= (0xF << 20); // enable CP10 and CP11 full access
-    __DSB();
-    __ISB();
-}
 
 void __SysTick_init(uint32_t reload)
 {
-    SYSTICK->LOAD = (reload & SysTick_LOAD_RELOAD_Msk);
+    reload =  (180 * reload);
+    SYSTICK->CTRL &= ~(1 << 0);
+    // Hardware counts LOAD→0 (inclusive), so we subtract 1 to get exact cycle count
+    SYSTICK->LOAD = ((reload-1) & SysTick_LOAD_RELOAD_Msk);
     SYSTICK->VAL = 0;
     SYSTICK->CTRL = SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_TICKINT_Msk | SysTick_CTRL_ENABLE_Msk;
 }
@@ -146,6 +140,11 @@ uint32_t wait_until(uint32_t delay)
     return ms_tick;
 }
 
+void __enable_fpu(void) {
+    SCB->CPACR |= (0xF << 20); // enable CP10 and CP11 full access
+    __DSB();
+    __ISB();
+}
 
 
 void SYS_SLEEP_WFI(void)

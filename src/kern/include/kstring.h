@@ -35,6 +35,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stddef.h>
 #include <types.h>
 int __str_to_num(uint8_t*,uint8_t);
 void __reverse_str(uint8_t*);

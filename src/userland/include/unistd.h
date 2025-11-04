@@ -30,6 +30,14 @@
  
 #ifndef __UNISTD_H
 #define __UNISTD_H
-/* Basic input and output function */
 
-#endif
+#include <stdint.h>
+#include <stddef.h>
+#include <types.h>
+#include <kunistd.h>
+
+/* Basic input and output functions */
+int read(int fd, void *buf, uint32_t count);
+int write(int fd, const void *buf, uint32_t count);
+
+#endif /* __UNISTD_H */

@@ -23,7 +23,8 @@
         "mcu_info.h": "c",
         "m5stack_error.h": "c",
         "m5stack_cmd.h": "c",
-        "kstring.h": "c"
+        "kstring.h": "c",
+        "unistd.h": "c"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.errorSquiggles": "disabled"

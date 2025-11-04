@@ -29,6 +29,7 @@
  */
  
 #include <stm32_startup.h>
+#include <syscall.h>
 const uint32_t STACK_START = (uint32_t)SRAM_END;
 uint32_t NVIC_VECTOR[] __attribute__((section (".isr_vector")))={
 	STACK_START,
@@ -192,5 +193,24 @@ void SVCall_Handler(void){
 
 
 }
+
+__attribute__((naked)) void SVC_Handler(void) {
+    __asm volatile(
+        "TST lr, #4       \n"
+        "ITE EQ           \n"
+        "MRSEQ r0, MSP    \n"
+        "MRSNE r0, PSP    \n"
+        "B SVC_Handler_C  \n"
+    );
+}
+
+void SVC_Handler_C(uint32_t *stack) {
+    uint32_t pc = stack[6];
+    uint8_t svc_no = ((const uint8_t *)(pc - 2))[0];
+    uint32_t a0 = stack[0], a1 = stack[1], a2 = stack[2], a3 = stack[3];
+    uint32_t ret = (uint32_t)syscall_dispatch(svc_no, a0, a1, a2, a3);
+    stack[0] = ret;     // return in R0
+}
+
 
 

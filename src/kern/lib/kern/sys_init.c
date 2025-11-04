@@ -54,7 +54,7 @@ void __sys_init(void)
 	__enable_fpu(); //enable FPU single precision floating point unit
 	__ISB();
 	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
-	__SysTick_init(180000);	//enable systick for 1ms at 180MHz
+	__SysTick_init(1000); // enable systick for how much micro seconds
 	//SYS_RTC_init();
 	SerialLin2_init(__CONSOLE,0);
 	SerialLin6_init(&huart6,0);

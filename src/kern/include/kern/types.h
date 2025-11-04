@@ -36,8 +36,10 @@ extern "C" {
 #undef NULL
 #define NULL 0
 
+/* Define ssize_t as a signed version of size_t */
+typedef int32_t ssize_t;
 
-#define size_t uint64_t
+// #define size_t uint64_t
 
 #define SYS_GPIO_t    0x001
 #define SYS_USART_t   0x002

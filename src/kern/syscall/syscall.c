@@ -32,6 +32,11 @@
 #include <syscall_def.h>
 #include <errno.h>
 #include <errmsg.h>
+#include <stdint.h>
+#include <kunistd.h>
+#include <UsartRingBuffer.h>
+#include <system_config.h>
+
 void syscall(uint16_t callno)
 {
 /* The SVC_Handler calls this function to evaluate and execute the actual function */
@@ -57,5 +62,25 @@ void syscall(uint16_t callno)
 		default: ;
 	}
 /* Handle SVC return here */
+}
+
+int sys_write(int fd, const void *buf,uint32_t size) {
+    if (fd == STDOUT_FILENO) {
+        const uint8_t *p = (const uint8_t *)buf;		
+        for (uint32_t i = 0; i < size; i++)
+            Uart_write(p[i],__CONSOLE);   // your driver function
+			
+        return (int)size;
+    }
+    return -1;
+}
+
+int syscall_dispatch(uint32_t callno, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3) {
+    switch (callno) {
+        case SYS_write:
+            return sys_write((int)a0, (const void *)a1, (size_t)a2);
+        default:
+            return -1;
+    }
 }
 

@@ -36,6 +36,7 @@
 #include <kstdio.h>
 #include <sys_rtc.h>
 #include <kstring.h>
+#include <unistd.h>
 #ifndef DEBUG
 #define DEBUG 1
 #endif
@@ -44,7 +45,11 @@ void kmain(void)
     __sys_init();
     while (1)
     {
-      ms_delay(30000); // wait 1 minute (60,000 ms)
-      kprintf("Elapsed: %d sec\n", __get__Second());
+      int n=write(STDOUT_FILENO, "", 0);
+      if (n < 0) {
+          kprintf("Write error!\n");
+      }
+      kprintf("n=%d.\n", n);
+      ms_delay(10000);
     }
 }

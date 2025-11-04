@@ -33,6 +33,7 @@
 #include <kmath.h>
 #include <kstdio.h>
 #include <kfloat.h>
+#include <stddef.h>
 
 static uint8_t __outbuf[50];
 

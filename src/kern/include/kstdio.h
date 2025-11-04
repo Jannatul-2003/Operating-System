@@ -31,6 +31,7 @@
 #ifndef __KSTDIO_H
 #define __KSTDIO_H
 #include <stdint.h>
+#include <stddef.h>
 #include <types.h>
 
 void kprintf(char*,...); 

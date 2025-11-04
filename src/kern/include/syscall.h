@@ -31,6 +31,13 @@
 #ifndef _SYSCALL_H
 #define _SYSCALL_H
 #include <stdint.h>
+#include <stddef.h>
+
+
 void syscall(uint16_t);
+
+int sys_write(int fd, const void *buf, uint32_t size);
+int syscall_dispatch(uint32_t callno, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3);
+
 #endif
 

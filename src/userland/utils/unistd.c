@@ -31,3 +31,18 @@
 #include <unistd.h>
 /* Write your highlevel I/O details */
 
+#include <stdint.h>
+#include <stddef.h>
+#include "syscall_def.h"
+#include "kunistd.h"
+
+#define SVC_CALL(num, a0, a1, a2) \
+    ({ register uint32_t r0 __asm("r0") = (uint32_t)(a0); \
+       register uint32_t r1 __asm("r1") = (uint32_t)(a1); \
+       register uint32_t r2 __asm("r2") = (uint32_t)(a2); \
+       __asm volatile("svc %[imm]" : "+r"(r0) : [imm] "I"(num), "r"(r1), "r"(r2) : "memory"); \
+       r0; })
+
+int write(int fd, const void *buf, uint32_t count) {
+    return (int)SVC_CALL(SYS_write, fd, buf, count);
+}
