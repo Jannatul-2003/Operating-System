@@ -37,7 +37,9 @@
 #include <kunistd.h>
 
 /* Basic input and output functions */
-int read(int fd, void *buf, uint32_t count);
-int write(int fd, const void *buf, uint32_t count);
+uint32_t read(int fd, void *buf, uint32_t count);
+uint32_t write(int fd, const void *buf, uint32_t count);
+uint32_t getSysTickTime();
+uint32_t getpid();
 
 #endif /* __UNISTD_H */

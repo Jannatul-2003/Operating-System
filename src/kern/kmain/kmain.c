@@ -37,6 +37,7 @@
 #include <sys_rtc.h>
 #include <kstring.h>
 #include <unistd.h>
+#include <syscall.h>
 #ifndef DEBUG
 #define DEBUG 1
 #endif
@@ -45,11 +46,15 @@ void kmain(void)
     __sys_init();
     while (1)
     {
-      int n=write(STDOUT_FILENO, "", 0);
-      if (n < 0) {
-          kprintf("Write error!\n");
-      }
+      uint32_t n=write(STDOUT_FILENO, "Hello\n", 6);                      
       kprintf("n=%d.\n", n);
-      ms_delay(10000);
+      ms_delay(5000);
+      uint32_t t=getSysTickTime();
+      kprintf("Time returned by getSystickTime=%d ms.\n", t);
+      g_current_task_id=100;
+      uint32_t pid=getpid();
+      kprintf("Current Task ID from getpid()=%d.\n", pid);
+      ms_delay(5000);
     }
 }
+

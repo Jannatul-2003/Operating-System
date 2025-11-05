@@ -33,11 +33,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
+uint32_t syscall_dispatch(uint16_t callno, uint32_t a0, uint32_t a1,
+                          uint32_t a2, uint32_t a3) ;
 
-void syscall(uint16_t);
-
-int sys_write(int fd, const void *buf, uint32_t size);
-int syscall_dispatch(uint32_t callno, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3);
+/* Declare the current task id here; define it in a single .c file (syscall.c)
+    to avoid multiple conflicting definitions when this header is included
+    in multiple translation units. */
+extern volatile uint32_t g_current_task_id;
 
 #endif
 

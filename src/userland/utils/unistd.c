@@ -36,13 +36,31 @@
 #include "syscall_def.h"
 #include "kunistd.h"
 
-#define SVC_CALL(num, a0, a1, a2) \
-    ({ register uint32_t r0 __asm("r0") = (uint32_t)(a0); \
-       register uint32_t r1 __asm("r1") = (uint32_t)(a1); \
-       register uint32_t r2 __asm("r2") = (uint32_t)(a2); \
-       __asm volatile("svc %[imm]" : "+r"(r0) : [imm] "I"(num), "r"(r1), "r"(r2) : "memory"); \
-       r0; })
+#define SVC_CALL(num, a0, a1, a2, a3)                                          \
+  ({                                                                           \
+    register uint32_t r0 __asm("r0") = (uint32_t)(a0);   /* Arg 1 */         \
+    register uint32_t r1 __asm("r1") = (uint32_t)(a1);   /* Arg 2 */         \
+    register uint32_t r2 __asm("r2") = (uint32_t)(a2);   /* Arg 3 */         \
+    register uint32_t r3 __asm("r3") = (uint32_t)(a3);   /* Arg 4 */         \
+    __asm volatile("svc %[imm]"                           /* Execute SVC */   \
+                   : "+r"(r0)                             /* Output: r0 */    \
+                   : [imm] "I"(num), "r"(r1), "r"(r2), "r"(r3)  /* Input */  \
+                   : "memory");                           /* Clobber */       \
+    r0;                                                   /* Return r0 */     \
+  })
 
-int write(int fd, const void *buf, uint32_t count) {
-    return (int)SVC_CALL(SYS_write, fd, buf, count);
+uint32_t write(int fd, const void *buf, uint32_t count) {
+    return (uint32_t)SVC_CALL(SYS_write, fd, buf, count,0U);
+}
+
+uint32_t read(int fd, void *buf, uint32_t count) {
+    return (uint32_t)SVC_CALL(SYS_read, fd, buf, count,0U);
+}
+
+uint32_t getSysTickTime(){
+    return (uint32_t)SVC_CALL(SYS___time, 0U, 0U, 0U,0U);
+}
+
+uint32_t getpid(){
+    return (uint32_t)SVC_CALL(SYS_getpid, 0U, 0U, 0U,0U);
 }

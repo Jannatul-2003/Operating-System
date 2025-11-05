@@ -152,6 +152,9 @@ void FMPI2C1_ERR_Handler(void) __attribute__((weak, alias("Default_Handler")));
 
 
 void update_global_tick_count(void);
+__attribute__((naked)) void SVCall_Handler(void);
+void SVC_Handler_C(uint32_t *stack);
+
 
 
 #ifdef __cplusplus
