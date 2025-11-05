@@ -46,15 +46,27 @@ void kmain(void)
     __sys_init();
     while (1)
     {
-      uint32_t n=write(STDOUT_FILENO, "Hello\n", 6);                      
-      kprintf("n=%d.\n", n);
-      ms_delay(5000);
-      uint32_t t=getSysTickTime();
-      kprintf("Time returned by getSystickTime=%d ms.\n", t);
-      g_current_task_id=100;
-      uint32_t pid=getpid();
-      kprintf("Current Task ID from getpid()=%d.\n", pid);
-      ms_delay(5000);
+        uint32_t n = write(STDOUT_FILENO, "Hello\n", 6);
+        kprintf("n=%d.\n", n);
+        ms_delay(5000);
+        uint32_t t = getSysTickTime();
+        kprintf("Time returned by getSystickTime=%d ms.\n", t);
+        g_current_task_id = 100;
+        uint32_t pid = getpid();
+        kprintf("Current Task ID from getpid()=%d.\n", pid);
+        ms_delay(5000);
+        char input_buffer[15];
+        int bytes_read = 0;
+        bytes_read = read(STDIN_FILENO, input_buffer, sizeof(input_buffer));
+        if (bytes_read > 0)
+        {
+            input_buffer[bytes_read] = '\0'; // Null terminate
+            kprintf("\r\nRead %d bytes: '%s'\r\n", bytes_read, input_buffer);
+        }
+        else
+        {
+            kprintf("\r\nRead syscall returned error: %d\r\n", bytes_read);
+        }
+        ms_delay(1000);
     }
 }
-

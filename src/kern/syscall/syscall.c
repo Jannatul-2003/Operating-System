@@ -28,99 +28,67 @@
  * SUCH DAMAGE.
  */
 
-#include <syscall.h>
-#include <syscall_def.h>
+#include "syscall.h"
+#include "syscall_def.h"
+#include <string.h>
 #include <errno.h>
 #include <errmsg.h>
-#include <stdint.h>
+#include <types.h>
 #include <kunistd.h>
 #include <UsartRingBuffer.h>
 #include <system_config.h>
 #include <cm4.h>
+#include <kmain.h>
+#include <kstdio.h>
 
-// void syscall(uint16_t callno)
-// {
-// /* The SVC_Handler calls this function to evaluate and execute the actual function */
-// /* Take care of return value or code */
-// 	switch(callno)
-// 	{
-// 		/* Write your code to call actual function (kunistd.h/c or times.h/c and handle the return value(s) */
-// 		case SYS_read:
-// 			break;
-// 		case SYS_write:
-// 			break;
-// 		case SYS_reboot:
-// 			break;
-// 		case SYS__exit:
-// 			break;
-// 		case SYS_getpid:
-// 			break;
-// 		case SYS___time:
-// 			break;
-// 		case SYS_yield:
-// 			break;
-// 		/* return error code see error.h and errmsg.h ENOSYS sys_errlist[ENOSYS]*/
-// 		default: ;
-// 	}
-// /* Handle SVC return here */
-// }
 
-uint32_t sys_read(uint32_t fd, uint8_t *buf, uint32_t len)
+#define UART_TX_READY (1U << 7)
+#define UART_RX_READY (1U << 5)
+#define UART_BASE 0x40004400U   // USART2 base for many F4 variants (adjust if needed)
+#define UART_SR   (*(volatile uint32_t*)(UART_BASE + 0x00))
+#define UART_DR   (*(volatile uint32_t*)(UART_BASE + 0x04))
+int32_t sys_read(uint32_t fd, uint8_t *buf, uint32_t len)
+
+static char uart_recv_char(void)
 {
-	if (fd != STDIN_FILENO || buf == 0 || len == 0U)
-	{
-		return 0U;
-	}
-	if (len > 256U)
-	{
-		len = 256U; // Limit buffer size
-	}
-
-	// Read from UART with echo
-	uint32_t count = 0U;
-	while (count < len)
-	{
-		while (IsDataAvailable(__CONSOLE) == 0)
-		{
-			// Busy wait for data
-		}
-		int c = Uart_read(__CONSOLE);
-		if (c < 0)
-		{
-			break;
-		}
-		
-		// Echo the character back
-		Uart_write((uint8_t)c, __CONSOLE);
-		
-		// Store the character
-		buf[count++] = (uint8_t)c;
-		
-		// Handle backspace
-		if ((uint8_t)c == 0x7F || (uint8_t)c == 0x08) {
-			if (count >= 2) {
-				count -= 2; // Remove backspace and previous char
-			} else {
-				count = 0;
-			}
-			continue;
-		}
-		
-		// Break on Enter/Return
-		if ((uint8_t)c == '\r' || (uint8_t)c == '\n')
-		{
-			Uart_write('\n', __CONSOLE); // Send newline
-			break;
-		}
-	}
-	
-	if (count < len)
-	{
-		buf[count] = '\0'; // Null terminate
-	}
-	return count; // Return bytes read
+    while (!(UART_SR & UART_RX_READY));  // Wait until data received
+    return (char)(UART_DR & 0xFF);       // Read received byte
 }
+uint32_t sys_read(int fd, char *buf, uint32_t size)
+{
+    if (buf == NULL || size == 0)
+    {
+        return -1;
+    }
 
+    if (fd == STDIN_FILENO)
+    {
+        uint32_t bytes_read = 0;
+        uint32_t max_size = (size > 256) ? 256 : size; // Limit to 256 bytes
+
+        for (uint32_t i = 0; i < max_size; i++)
+        {
+            uint32_t c = uart_recv_char();
+            if (c == -1)
+            {
+                break;
+            }
+
+            buf[i] = (char)c;
+            bytes_read++;
+
+            // Check for termination character
+            if (c == '\n' || c == '\r' || c == '\0')
+            {
+                break;
+            }
+        }
+        return (uint32_t)bytes_read;
+
+    }
+
+    return -1;
+}
 uint32_t sys_write(uint32_t fd, const uint8_t *buf, uint32_t len)
 {
 	if (fd != STDOUT_FILENO || buf == 0 || len == 0U)
@@ -144,8 +112,8 @@ uint32_t syscall_dispatch(uint16_t callno, uint32_t a0, uint32_t a1,
 
 	case SYS_read:
 	{ // syscall #50
-		uint32_t fd = a0;
-		uint8_t *buf = (uint8_t *)a1;
+		int fd = a0;
+		char *buf = (char *)a1;
 		uint32_t len = a2;
 
 		return sys_read(fd, buf, len);
